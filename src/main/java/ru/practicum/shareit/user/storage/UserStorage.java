@@ -13,8 +13,8 @@ public interface UserStorage {
 
     User update(Long userId, User user);
 
-    User get(Long UserId);
+    User get(Long userId);
 
-    void delete(Long UserId);
+    void delete(Long userId);
 
 }
