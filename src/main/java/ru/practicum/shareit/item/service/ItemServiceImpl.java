@@ -37,10 +37,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item update(Item item, Long userId) {
         User user = userStorage.get(userId);
-        if (itemStorage.get(item.getId()).getOwner().getId().equals(userId))
-            item.setOwner(user);
-        else
-            throw new PermissionException("менять владельца нельзя");
+        if (!itemStorage.get(item.getId()).getOwner().getId().equals(userId)) {
+            throw new PermissionException("Пользователь не найден");
+        }
+        item.setOwner(user);
         return itemStorage.update(item);
     }
 
