@@ -39,15 +39,15 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllByUser(Long userId) {
         getUserById(userId);
+
         List<ItemDto> itemDtos = itemRepository.findAllByOwnerId(userId).stream()
                 .map(ItemMapper::toItemDto)
+                .peek(itemDto -> {
+                    itemDto.setNextBooking(getNextBooking(itemDto.getId()));
+                    itemDto.setLastBooking(getLastBooking(itemDto.getId()));
+                    itemDto.setComments(getComments(itemDto.getId()));
+                })
                 .collect(Collectors.toList());
-
-        for (ItemDto itemDto : itemDtos) {
-            itemDto.setNextBooking(getNextBooking(itemDto.getId()));
-            itemDto.setLastBooking(getLastBooking(itemDto.getId()));
-            itemDto.setComments(getComments(itemDto.getId()));
-        }
 
         return itemDtos;
     }
