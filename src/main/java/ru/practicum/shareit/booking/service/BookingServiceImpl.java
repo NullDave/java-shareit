@@ -41,12 +41,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getAllByUserId(String state, Long userId, Integer from, Integer size) {
         getUser(userId);
-        Integer totalSize = bookingRepository.countAllByBookerId(userId);
-        int totalPages = (int) Math.ceil((double) totalSize / size);
-        if (from >= totalPages) {
-            from = totalPages - 1;
-        }
-        Pageable page = PageRequest.of(from, size);
+        Pageable page = PageRequest.of(from / size, size);
         switch (BookingState.get(state)) {
             case ALL:
                 return bookingRepository.findAllByBookerIdOrderByStartDesc(userId, page);

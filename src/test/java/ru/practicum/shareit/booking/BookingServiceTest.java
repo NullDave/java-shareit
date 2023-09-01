@@ -113,8 +113,6 @@ public class BookingServiceTest {
                 .build();
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
-        when(bookingRepository.countAllByBookerId(anyLong()))
-                .thenReturn(2);
         when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), any()))
                 .thenReturn(List.of(booking, booking2));
         List<Booking> currentList = bookingService.getAllByUserId(BookingState.ALL.name(), 1L, 0, 20);
@@ -135,8 +133,6 @@ public class BookingServiceTest {
                 .build();
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
-        when(bookingRepository.countAllByBookerId(anyLong()))
-                .thenReturn(2);
         when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(anyLong(), any(), any()))
                 .thenReturn(List.of(booking, booking2));
         List<Booking> currentList = bookingService.getAllByUserId(BookingState.WAITING.name(), 1L, 0, 20);
@@ -157,8 +153,6 @@ public class BookingServiceTest {
                 .build();
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
-        when(bookingRepository.countAllByBookerId(anyLong()))
-                .thenReturn(2);
         when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(anyLong(), any(), any()))
                 .thenReturn(List.of(booking, booking2));
         List<Booking> currentList = bookingService.getAllByUserId(BookingState.REJECTED.name(), 1L, 0, 20);
@@ -179,8 +173,6 @@ public class BookingServiceTest {
                 .build();
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
-        when(bookingRepository.countAllByBookerId(anyLong()))
-                .thenReturn(2);
         when(bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(anyLong(), any(), any()))
                 .thenReturn(List.of(booking2));
         List<Booking> currentList = bookingService.getAllByUserId(BookingState.FUTURE.name(), 1L, 0, 20);
@@ -193,8 +185,6 @@ public class BookingServiceTest {
     public void testGetAllByUserIdIncorrectState() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user2));
-        when(bookingRepository.countAllByBookerId(anyLong()))
-                .thenReturn(2);
         assertThrows(NotImplementedException.class, () -> bookingService.getAllByUserId("Unknown", 2L, 0, 20));
 
     }

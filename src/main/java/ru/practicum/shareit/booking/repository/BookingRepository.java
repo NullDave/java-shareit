@@ -38,5 +38,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Booking findFirstByItemIdAndBookerIdAndEndBeforeAndStatus(Long itemId, Long userId, LocalDateTime currentTime, BookingStatus status);
 
-    Integer countAllByBookerId(Long userId);
 }
