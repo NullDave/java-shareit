@@ -72,6 +72,19 @@ public class ItemRequestServiceTest {
         itemRequestList = Arrays.asList(itemRequest, itemRequest2, itemRequestWithItem);
     }
 
+    @Test
+    public void testGetAll() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.of(user));
+        when(itemRequestRepository.findAllByRequesterIdNotOrderByCreatedDesc(anyLong(), any()))
+                .thenReturn(itemRequestList);
+        List<ItemRequest> currentList = itemRequestService.getAll(1L, 0, 20);
+        assertEquals(currentList.get(0).getId(), itemRequest.getId());
+        assertEquals(currentList.get(1).getId(), itemRequest2.getId());
+        assertEquals(currentList.get(2).getId(), itemRequestWithItem.getId());
+        assertEquals(currentList.get(2).getItems().get(0).getId(), 1L);
+
+    }
 
     @Test
     public void testGetAllByOwner() {

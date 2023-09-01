@@ -227,6 +227,12 @@ public class ItemServiceTest {
     }
 
     @Test
+    public void testSearchWithTextIsBlank() {
+        List<Item> currentList = itemService.search("", 0, 20);
+        assertEquals(currentList.size(), 0);
+    }
+
+    @Test
     public void testAddComment() {
         when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.of(item2));
