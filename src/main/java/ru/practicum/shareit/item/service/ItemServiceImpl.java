@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -19,6 +21,7 @@ import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -35,12 +38,13 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
-    public List<ItemDto> getAllByUser(Long userId) {
+    public List<ItemDto> getAllByUser(Long userId, Integer from, Integer size) {
         getUserById(userId);
-
-        List<ItemDto> itemDtos = itemRepository.findAllByOwnerId(userId).stream()
+        Pageable page = PageRequest.of(from, size);
+        List<ItemDto> itemDtos = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
                 .peek(itemDto -> {
                     itemDto.setNextBooking(getNextBooking(itemDto.getId()));
@@ -69,6 +73,10 @@ public class ItemServiceImpl implements ItemService {
     public Item add(Item item, Long userId) {
         User user = getUserById(userId);
         item.setOwner(user);
+        if (item.getRequest() != null) {
+            item.setRequest(itemRequestRepository.findById(item.getRequest().getId())
+                    .orElseThrow(() -> new NotFoundException("запрос не найден id:" + item.getRequest().getId())));
+        }
         return itemRepository.save(item);
     }
 
@@ -101,11 +109,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> search(String keyword) {
+    public List<Item> search(String keyword, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from, size);
         if (keyword.isBlank()) {
             return Collections.emptyList();
         }
-        return itemRepository.search(keyword.toLowerCase());
+        return itemRepository.search(keyword.toLowerCase(), page);
     }
 
     @Override

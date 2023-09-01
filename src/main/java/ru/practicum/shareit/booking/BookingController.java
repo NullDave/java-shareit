@@ -1,12 +1,14 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/bookings")
 @AllArgsConstructor
+@Validated
 public class BookingController {
     private final BookingService bookingService;
 
@@ -25,8 +28,10 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponseDto> getAllByUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                   @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getAllByUserId(state, userId).stream()
+                                                   @RequestParam(defaultValue = "ALL") String state,
+                                                   @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                                   @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+        return bookingService.getAllByUserId(state, userId, from, size).stream()
                 .map(BookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
     }
@@ -45,8 +50,10 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getAllByItemOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                      @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getAllByItemOwner(state, userId).stream()
+                                                      @RequestParam(defaultValue = "ALL") String state,
+                                                      @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                                      @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+        return bookingService.getAllByItemOwner(state, userId, from, size).stream()
                 .map(BookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
     }

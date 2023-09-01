@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -37,42 +39,49 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByUserId(String state, Long userId) {
+    public List<Booking> getAllByUserId(String state, Long userId, Integer from, Integer size) {
         getUser(userId);
+        Integer totalSize = bookingRepository.countAllByBookerId(userId);
+        int totalPages = (int) Math.ceil((double) totalSize / size);
+        if (from >= totalPages) {
+            from = totalPages - 1;
+        }
+        Pageable page = PageRequest.of(from, size);
         switch (BookingState.get(state)) {
             case ALL:
-                return bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+                return bookingRepository.findAllByBookerIdOrderByStartDesc(userId, page);
             case CURRENT:
-                return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
+                return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), page);
             case PAST:
-                return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), page);
             case FUTURE:
-                return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now(), page);
             case WAITING:
-                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, page);
             case REJECTED:
-                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, page);
             default:
                 throw new NotImplementedException("Unknown state: " + state);
         }
     }
 
     @Override
-    public List<Booking> getAllByItemOwner(String state, Long userId) {
+    public List<Booking> getAllByItemOwner(String state, Long userId, Integer from, Integer size) {
         getUser(userId);
+        Pageable page = PageRequest.of(from, size);
         switch (BookingState.get(state)) {
             case ALL:
-                return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
+                return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId, page);
             case CURRENT:
-                return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
+                return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now(), page);
             case PAST:
-                return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now(), page);
             case FUTURE:
-                return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now(), page);
             case WAITING:
-                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, page);
             case REJECTED:
-                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, page);
             default:
                 throw new NotImplementedException("Unknown state: " + state);
         }
