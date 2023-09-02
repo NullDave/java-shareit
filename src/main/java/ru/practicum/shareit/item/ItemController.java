@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.comment.dto.CommentDto;
@@ -8,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,13 +17,16 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/items")
 @AllArgsConstructor
+@Validated
 public class ItemController {
 
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getAllByUser(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
-        return itemService.getAllByUser(userId);
+    public List<ItemDto> getAllByUser(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                      @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                      @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+        return itemService.getAllByUser(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -31,8 +36,10 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam String text) {
-        return itemService.search(text)
+    public List<ItemDto> search(@RequestParam String text,
+                                @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+        return itemService.search(text, from, size)
                 .stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
